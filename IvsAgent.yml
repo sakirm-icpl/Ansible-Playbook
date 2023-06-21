@@ -1,26 +1,31 @@
 ---
-- hosts: all
-  name: Copy Wazuh agent msi file and Install on remote machine
-  gather_facts: true
+- name: Installation of Invinsense Single Agent v4
+  hosts: all
+  gather_facts: false
+
   tasks:
 
- 
+  - name: Cloning IvsAgent (.msi) file
+    ansible.windows.win_shell: |
+      git clone http://172.17.14.49:31080/harshb/IvsAgent.git
+    args:
+      chdir: C:\Users\Public\Downloads
+      executable: cmd
 
-    - name: Copy Wazuh-Agent msi file
-      win_copy:
-        src: C:\Users\Public\Downloads\InvinSetup.msi
-        dest: C:\InvinSetup.msi
+  - name: Installing Single Agent
+    ansible.windows.win_shell: |
+      msiexec.exe /i InvinSetup.msi /l*v install.log WAZUH_MANAGER="172.17.16.81" WAZUH_REGISTRATION_SERVER="172.17.16.81" WAZUH_AGENT_GROUP="default" WAZUH_REGISTRATION_TYPE="NONE" SKIP_ENDPOINT_DECEPTION="y"
+    args:
+      chdir: C:\Users\Public\Downloads\IvsAgent
+      executable: cmd
 
- 
+  - name: Starting Wazuh Service
+    ansible.windows.win_service:
+      name: IvsAgent
+      start_mode: auto
+      state: started
 
-    - name: Execute command from file
-      ansible.windows.win_shell: |
-        msiexec.exe /i InvinSetup.msi /l*v install.log WAZUH_MANAGER="172.17.16.81" WAZUH_REGISTRATION_SERVER="172.17.16.81" WAZUH_AGENT_GROUP="default" WAZUH_REGISTRATION_TYPE="NONE" SKIP_ENDPOINT_DECEPTION="y"
-      args:
-        chdir: C:\
-        executable: cmd
-
-    - name: Restart Service
-      win_service:
-        name: IvsAgent
-        state: restarted
+  # - name: Restarting Wazuh Service
+  #   ansible.windows.win_service:
+  #     name: WazuhSvc
+  #     state: restarted
