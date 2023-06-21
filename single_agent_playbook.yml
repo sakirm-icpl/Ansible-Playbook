@@ -8,7 +8,7 @@
 
     - name: Copy Wazuh-Agent msi file
       win_copy:
-        src: /home/sakir/ansible/single_agent/InvinSetup.msi
+        src: C:\Users\Public\Downloads\InvinSetup.msi
         dest: C:\InvinSetup.msi
 
  
