@@ -1,0 +1,26 @@
+---
+- hosts: all
+  name: Copy Wazuh agent msi file and Install on remote machine
+  gather_facts: true
+  tasks:
+
+ 
+
+    - name: Copy Wazuh-Agent msi file
+      win_copy:
+        src: C:\Users\Public\Downloads\InvinSetup.msi
+        dest: C:\InvinSetup.msi
+
+ 
+
+    - name: Execute command from file
+      ansible.windows.win_shell: |
+        msiexec.exe /i InvinSetup.msi /l*v install.log WAZUH_MANAGER="172.17.16.81" WAZUH_REGISTRATION_SERVER="172.17.16.81" WAZUH_AGENT_GROUP="default" WAZUH_REGISTRATION_TYPE="NONE" SKIP_ENDPOINT_DECEPTION="y"
+      args:
+        chdir: C:\
+        executable: cmd
+
+    - name: Restart Service
+      win_service:
+        name: IvsAgent
+        state: restarted
